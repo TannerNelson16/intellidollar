@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">Analytics</h1>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <h2 class="h6 mb-3">Set/Update Starting Savings</h2>
+    <form method="post" class="row g-2">
+      {{ form.csrf_token }}
+      <div class="col-6 col-md-3">{{ form.month.label }} {{ form.month(class_='form-control', placeholder='YYYY-MM') }}</div>
+      <div class="col-6 col-md-3">{{ form.amount.label }} {{ form.amount(class_='form-control', step='0.01') }}</div>
+      <div class="col-12 col-md-3">{{ form.submit(class_='btn btn-secondary w-100 mt-4 mt-md-0') }}</div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h2 class="h6 mb-3">Income vs Expenses (Bars), Savings (Line)</h2>
+    <!-- Fixed-height container to prevent infinite vertical growth -->
+    <div style="height: 360px;">
+      <canvas id="incExpChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels = {{ months|tojson }};
+const income = {{ income|tojson }};
+const expenses = {{ expenses|tojson }};
+const budgeted = {{ budgeted|tojson }};
+const savings = {{ savings|tojson }};
+
+const ctx = document.getElementById('incExpChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [
+      { label: 'Income', data: income },
+      { label: 'Expenses', data: expenses },
+      { label: 'Budgeted Expenses', data: budgeted },
+      { label: 'Savings', data: savings, type: 'line', tension: 0.2, yAxisID: 'y' }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false, // respects the parent div's fixed height
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      y: { beginAtZero: true }
+    },
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: { enabled: true }
+    }
+  }
+});
+</script>
+{% endblock %}
+

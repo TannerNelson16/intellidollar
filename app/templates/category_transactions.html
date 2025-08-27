@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{{ category.name }} — {{ month }}</h1>
+  <form class="d-flex" method="get" action="{{ url_for('core.category_transactions', cat_id=category.id) }}">
+    <select name="month" class="form-select form-select-sm me-2" style="max-width: 180px;">
+      {% set base_year = (month.split('-')[0] | int) %}
+      {% set base_month = (month.split('-')[1] | int) %}
+      {# Simple 12-month window around current selected month #}
+      {% for offset in range(-6, 7) %}
+        {% set y = base_year + ((base_month - 1 + offset) // 12) %}
+        {% set m_idx = ((base_month - 1 + offset) % 12) + 1 %}
+        {% set m_str = y ~ '-' ~ ('%02d' % m_idx) %}
+        <option value="{{ m_str }}" {% if m_str == month %}selected{% endif %}>{{ m_str }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-sm btn-outline-primary">Go</button>
+  </form>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-muted small">Total Income</div>
+        <div class="fs-5 fw-bold text-success">+${{ '%.2f'|format(total_income) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card">
+      <div class="card-body">
+        <div class="text-muted small">Total Expense</div>
+        <div class="fs-5 fw-bold text-danger">-${{ '%.2f'|format(total_expense) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="list-group">
+  {% for t in txns %}
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <div class="fw-semibold">{{ t.description or 'No description' }}</div>
+        <div class="small text-muted">{{ t.date }} · {{ t.type|capitalize }}</div>
+      </div>
+
+      <div class="fw-bold {% if t.type == 'expense' %}text-danger{% else %}text-success{% endif %}">
+        {% if t.type == 'expense' %}
+          -${{ '%.2f'|format(t.amount) }}
+        {% else %}
+          +${{ '%.2f'|format(t.amount) }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-2 d-flex gap-2">
+      <a class="btn btn-sm btn-outline-light" href="{{ url_for('core.transactions_edit', txn_id=t.id) }}">Edit</a>
+      <form method="post" action="{{ url_for('core.transactions_delete', txn_id=t.id) }}" onsubmit="return confirm('Delete this transaction?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-sm btn-outline-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+    <div class="list-group-item">No transactions for this category in {{ month }}.</div>
+  {% endfor %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">Edit Budget</h1>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {{ form.csrf_token }}
+
+      <div class="row g-2">
+        <div class="col-12 col-md-4">
+          {{ form.category_id.label }} {{ form.category_id(class_='form-select') }}
+        </div>
+
+        <div class="col-6 col-md-3">
+          <label for="month_select" class="form-label">Month</label>
+          {% if form.recurrence.data == 'monthly' or budget.recurrence == 'monthly' %}
+            <input type="text" class="form-control" value="{{ budget.month or form.month.data }}" disabled>
+            <input type="hidden" name="month" value="{{ budget.month or form.month.data }}">
+          {% else %}
+            <select id="month_select" name="month" class="form-select">
+              {% for m in months_options %}
+                <option value="{{ m }}" {% if (form.month.data or budget.month) == m %}selected{% endif %}>{{ m }}</option>
+              {% endfor %}
+            </select>
+          {% endif %}
+        </div>
+
+        <div class="col-6 col-md-3">
+          {{ form.amount.label }} {{ form.amount(class_='form-control', step='0.01') }}
+        </div>
+
+        <div class="col-12 col-md-2">
+          {{ form.recurrence.label }} {{ form.recurrence(class_='form-select') }}
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-success" type="submit">Save Changes</button>
+        <a class="btn btn-secondary" href="{{ url_for('core.budgets') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

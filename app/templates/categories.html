@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">Categories</h1>
+<div class="card mb-3">
+  <div class="card-body">
+    <form method="post" class="row g-2">
+      {{ form.csrf_token }}
+      <div class="col-12 col-md-6">{{ form.name.label }} {{ form.name(class_='form-control') }}</div>
+      <div class="col-12 col-md-4">{{ form.icon.label }} {{ form.icon(class_='form-select') }}</div>
+      <div class="col-12 col-md-2 d-grid">{{ form.submit(class_='btn btn-secondary mt-md-4') }}</div>
+    </form>
+  </div>
+</div>
+
+<ul class="list-group">
+  {% for c in categories %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    <div>
+      <i class="bi bi-{{ c.icon }} me-2"></i>
+      <span class="fw-semibold">{{ c.name }}</span>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-light" href="{{ url_for('core.categories_edit', cat_id=c.id) }}">Edit</a>
+      <form method="post" action="{{ url_for('core.categories_delete', cat_id=c.id) }}" onsubmit="return confirm('Delete this category? You cannot if it is in use.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-sm btn-outline-danger">Delete</button>
+      </form>
+    </div>
+  </li>
+  {% else %}
+  <li class="list-group-item">No categories yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+

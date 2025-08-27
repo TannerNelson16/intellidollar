@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4">Dashboard — {{ month }}</h1>
+  <form class="d-flex" method="get">
+    <select name="month" class="form-select form-select-sm me-2" style="max-width: 180px;">
+      {% for m in months_options %}
+        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-sm btn-outline-primary">Go</button>
+  </form>
+</div>
+
+{% if cards %}
+<div class="row g-3">
+  {% for c in cards %}
+  {% set over = c.percent > 102 %}
+  <div class="col-12 col-md-6">
+    <!-- position-relative so the stretched link can cover the card -->
+    <div class="card h-100 position-relative">
+      <!-- Make the whole card clickable to the category transactions page -->
+      <a
+        href="{{ url_for('core.category_transactions', cat_id=c.category_id, month=month) }}"
+        class="stretched-link"
+        style="position:absolute; inset:0; z-index:1;"
+        aria-label="View {{ c.category }} transactions for {{ month }}"
+      ></a>
+
+      <div class="card-body" style="position:relative; z-index:0;">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="h6 mb-1">{{ c.category }}</h2>
+          <span class="badge bg-secondary">Budget: ${{ c.amount }}</span>
+        </div>
+        <div class="small text-muted mb-2">Spent: ${{ c.spent }}</div>
+        <div class="progress" role="progressbar" aria-label="Spent" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar {% if over %}bg-danger{% endif %} text-white"
+               style="width: {{ c.percent if c.percent < 100 else 100 }}%">
+            {{ c.percent|round(0) }}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="alert alert-info">No budgets set for this month yet. Head to <a href="{{ url_for('core.budgets') }}">Budgets</a>.</div>
+{% endif %}
+
+{% if unbudgeted_spent and unbudgeted_spent != '0.00' %}
+  <a href="{{ url_for('core.unbudgeted_transactions', month=month) }}" class="text-decoration-none">
+    <div class="card my-3 position-relative">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="h6 mb-1 text-light">Unbudgeted Expenses</h2>
+          <span class="badge bg-warning text-dark">No budget set</span>
+        </div>
+        <div class="small text-muted mb-2">Spent: ${{ unbudgeted_spent }}</div>
+        <div class="progress" role="progressbar" aria-label="Unbudgeted" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar bg-warning text-dark" style="width: 100%">100%</div>
+        </div>
+      </div>
+      <span class="stretched-link"></span>
+    </div>
+  </a>
+{% endif %}
+
+<h2 class="h5 mt-4">Recent Transactions</h2>
+<div class="list-group">
+  {% for t, c in txns %}
+    <div class="list-group-item d-flex justify-content-between">
+      <div>
+        <div class="fw-semibold">{{ c.name }} — {{ t.description or 'No description' }}</div>
+        <div class="small text-muted">{{ t.date }} · {{ t.type|capitalize }}</div>
+      </div>
+      <div class="fw-bold {% if t.type == 'expense' %}text-danger{% else %}text-success{% endif %}">
+        {% if t.type == 'expense' %}
+          -${{ '%.2f'|format(t.amount) }}
+        {% else %}
+          +${{ '%.2f'|format(t.amount) }}
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="list-group-item">
+      No transactions yet. Add one on the
+      <a href="{{ url_for('core.transactions') }}">Transactions</a> page.
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Spacer so content doesn't sit under the FAB on mobile -->
+<div style="height: 110px;"></div>
+
+<!-- Floating Quick Add Button (bigger & higher z-index for safer taps) -->
+<a href="#" class="btn btn-primary rounded-circle shadow position-fixed"
+   style="right: 20px; bottom: 20px; width: 72px; height: 72px;
+          display:flex; align-items:center; justify-content:center;
+          font-size: 1.6rem; z-index: 1080;"
+   data-bs-toggle="modal" data-bs-target="#quickAddModal"
+   aria-label="Quick add transaction">
+  +
+</a>
+
+<!-- Quick Add Transaction Modal -->
+<div class="modal fade" id="quickAddModal" tabindex="-1" aria-labelledby="quickAddLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="quickAddLabel">Quick Add Transaction</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form method="post" action="{{ url_for('core.transactions') }}">
+          {{ qa_form.csrf_token }}
+
+          <!-- Category Grid -->
+          <label class="form-label">Choose Category</label>
+          <div class="row row-cols-3 row-cols-md-4 row-cols-lg-5 g-2"
+               style="max-height: 360px; overflow-y: auto; overflow-x: hidden;">
+            {% for c in cats %}
+            <div class="col">
+              <button type="button"
+                      class="cat-btn btn btn-outline-light w-100 py-2"
+                      onclick="
+                        document.getElementById('quickAddCategory').value='{{ c.id }}';
+                        document.querySelectorAll('#quickAddModal .cat-btn').forEach(b=>b.classList.remove('active'));
+                        this.classList.add('active');
+                      ">
+                <div class="d-flex flex-column align-items-center">
+                  <i class="bi bi-{{ c.icon }} fs-4"></i>
+                  <small class="mt-1 text-truncate" style="max-width: 100%;">{{ c.name }}</small>
+                </div>
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="category_id" id="quickAddCategory">
+
+          <!-- Essentials only -->
+          <div class="mt-3">
+            <div class="row g-2">
+              <div class="col-6">
+                {{ qa_form.amount.label(class_='form-label') }}
+                {{ qa_form.amount(class_='form-control bg-dark text-light', placeholder='0.00') }}
+              </div>
+              <div class="col-6">
+                {{ qa_form.type.label(class_='form-label') }}
+                {{ qa_form.type(class_='form-select bg-dark text-light') }}
+              </div>
+              <div class="col-12">
+                {{ qa_form.date.label(class_='form-label') }}
+                {{ qa_form.date(class_='form-control bg-dark text-light') }}
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 mt-3">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

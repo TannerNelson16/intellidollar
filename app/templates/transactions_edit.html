@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">Edit Transaction</h1>
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="row g-2">
+      {{ form.csrf_token }}
+      <div class="col-6">{{ form.type.label }} {{ form.type(class_='form-select') }}</div>
+      <div class="col-6">{{ form.category_id.label }} {{ form.category_id(class_='form-select') }}</div>
+      <div class="col-6">{{ form.amount.label }} {{ form.amount(class_='form-control', step='0.01') }}</div>
+      <div class="col-6">{{ form.date.label }} {{ form.date(class_='form-control') }}</div>
+      <div class="col-12">{{ form.description.label }} {{ form.description(class_='form-control') }}</div>
+      <div class="col-12 d-flex gap-2">
+        {{ form.submit(class_='btn btn-primary') }}
+        <a class="btn btn-outline-light" href="{{ url_for('core.transactions') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

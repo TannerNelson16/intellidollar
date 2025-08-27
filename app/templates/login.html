@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h1 class="h4 mb-3">Log In</h1>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.email.label }}
+        {{ form.email(class_='form-control', autocomplete='email') }}
+        {% for err in form.email.errors %}
+          <div class="text-danger small mt-1">{{ err }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password.label }}
+        {{ form.password(class_='form-control', autocomplete='current-password') }}
+        {% for err in form.password.errors %}
+          <div class="text-danger small mt-1">{{ err }}</div>
+        {% endfor %}
+      </div>
+
+      {% if form.csrf_token.errors %}
+        {% for err in form.csrf_token.errors %}
+          <div class="alert alert-danger">{{ err }}</div>
+        {% endfor %}
+      {% endif %}
+
+      {{ form.submit(class_='btn btn-primary w-100') }}
+    </form>
+
+    <div class="mt-3 text-center">
+      <a href="{{ url_for('core.register') }}">Need an account?</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

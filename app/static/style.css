@@ -1,0 +1,83 @@
+/* Keep it clean and legible on phones */
+/* Keep it clean and legible on phones */
+body { background: #0f1115; color: #e9eef7; }
+.card, .list-group-item, .table { background: #151a21; color: #e9eef7; }
+.navbar { background: #0b0e13 !important; }
+.form-control, .form-select { background: #0f1319; color: #e9eef7; border-color: #233043; }
+.btn-primary, .btn-success, .btn-secondary { border: 0; }
+.progress { height: 0.9rem; }
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  z-index: 1050;
+}
+
+/* Quick Add grid */
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+  max-height: 40vh;
+  overflow-y: auto;        /* vertical scroll only */
+  overflow-x: hidden;      /* no horizontal scroll */
+  padding-right: .25rem;
+}
+
+@media (min-width: 576px) {
+  .qa-grid {
+    grid-template-columns: repeat(4, 1fr);
+    max-height: 50vh;
+  }
+}
+
+/* Optional: keep long names from stretching tiles */
+.qa-btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qa-tile {
+  border: 1px solid #233043;
+  background: #0f1319;
+  color: #e9eef7;
+  border-radius: .75rem;
+  padding: .75rem .5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.qa-tile .qa-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  margin-bottom: .25rem;
+}
+.qa-tile .qa-label {
+  font-size: .9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qa-tile.active,
+.qa-tile:hover {
+  border-color: #0d6efd;
+  box-shadow: inset 0 0 0 1px #0d6efd;
+}
+.text-muted, small.text-muted {
+  color: rgba(233, 238, 247, 0.7) !important; /* light gray-blue */
+
+  #quickAddModal .btn-outline-light:not(.active) { color: #e9eef7; border-color: #3a475a; }
+  #quickAddModal .btn-outline-light.active {
+    color: #fff; background-color: #0d6efd; border-color: #0d6efd;
+  }
+  #quickAddModal .form-label { color: #cfd6e6; }}

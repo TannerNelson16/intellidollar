@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">Budgets</h1>
+
+{# Compatibility: support either months_options or month_options #}
+{% set mopts = months_options|default(month_options, true) %}
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form method="post" class="row g-2">
+      {{ form.csrf_token }}
+      <div class="col-12 col-md-4">
+        {{ form.category_id.label }} {{ form.category_id(class_='form-select') }}
+      </div>
+      <div class="col-6 col-md-3">
+        <label for="month_select" class="form-label">Month</label>
+        <select id="month_select" name="month" class="form-select">
+          {% for m in mopts %}
+            <option value="{{ m }}"
+              {% if form.month.data == m %}
+                selected
+              {% elif loop.first and not form.month.data %}
+                selected
+              {% endif %}
+            >{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        {{ form.amount.label }} {{ form.amount(class_='form-control', step='0.01') }}
+      </div>
+      <div class="col-12 col-md-2">
+        {% if form.recurrence is defined %}
+          {{ form.recurrence.label }} {{ form.recurrence(class_='form-select') }}
+        {% else %}
+          <label class="form-label d-block">Recurrence</label>
+          <div class="form-control bg-secondary text-white-50">one_time</div>
+        {% endif %}
+      </div>
+      <div class="col-12">
+        {{ form.submit(class_='btn btn-success w-100') }}
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Recurring budgets (collapsed: one row per category) -->
+<div class="card mb-3">
+  <div class="card-body">
+    <h2 class="h6 mb-3">Recurring Budgets</h2>
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th>Category</th>
+            <th class="text-end">Amount</th>
+            <th class="text-nowrap">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b, c in recurring_rows %}
+          <tr>
+            <td><span class="badge bg-info text-dark">Recurring</span></td>
+            <td>{{ c.name }}</td>
+            <td class="text-end">${{ '%.2f'|format(b.amount) }}</td>
+            <td class="text-nowrap">
+              <a href="{{ url_for('core.budgets_edit', budget_id=b.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <form method="post"
+                    action="{{ url_for('core.budgets_delete', budget_id=b.id) }}"
+                    class="d-inline"
+                    onsubmit="return confirm('Delete this budget?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4">No recurring budgets.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- One-time budgets (all months) -->
+<div class="card">
+  <div class="card-body">
+    <h2 class="h6 mb-3">One-Time Budgets</h2>
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Category</th>
+            <th class="text-end">Amount</th>
+            <th class="text-nowrap">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b, c in one_time_rows %}
+          <tr>
+            <td>{{ b.month }}</td>
+            <td>{{ c.name }}</td>
+            <td class="text-end">${{ '%.2f'|format(b.amount) }}</td>
+            <td class="text-nowrap">
+              <a href="{{ url_for('core.budgets_edit', budget_id=b.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <form method="post"
+                    action="{{ url_for('core.budgets_delete', budget_id=b.id) }}"
+                    class="d-inline"
+                    onsubmit="return confirm('Delete this budget?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4">No one-time budgets.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

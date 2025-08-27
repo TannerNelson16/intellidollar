@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">Edit Budget</h1>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="row g-2">
+      {{ form.csrf_token }}
+
+      <div class="col-12 col-md-4">
+        {{ form.category_id.label }} {{ form.category_id(class_='form-select') }}
+      </div>
+
+      <div class="col-6 col-md-3">
+        <label for="month_select" class="form-label">Month</label>
+        <select id="month_select" name="month" class="form-select">
+          <option value="" {% if not (form.month.data or budget.month) %}selected{% endif %}>(none)</option>
+          {% for m in months_options %}
+            <option value="{{ m }}" {% if (form.month.data or budget.month) == m %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Ignored for monthly budgets</div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        {{ form.amount.label }} {{ form.amount(class_='form-control', step='0.01') }}
+      </div>
+
+      <div class="col-12 col-md-2">
+        {% if form.recurrence is defined %}
+          {{ form.recurrence.label }} {{ form.recurrence(class_='form-select', id='recurrence_select') }}
+        {% else %}
+          <label class="form-label d-block">Recurrence</label>
+          <div class="form-control bg-secondary text-white-50">one_time</div>
+        {% endif %}
+      </div>
+
+      <div class="col-12">
+        {{ form.submit(class_='btn btn-success w-100', value='Save Changes') }}
+      </div>
+    </form>
+
+    <hr class="my-3">
+
+    <form method="post" action="{{ url_for('core.budgets_delete', budget_id=budget.id) }}" onsubmit="return confirm('Delete this budget?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-danger">Delete Budget</button>
+      <a href="{{ url_for('core.budgets') }}" class="btn btn-outline-light ms-2">Back</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const recSel = document.getElementById('recurrence_select');
+    const monthSel = document.getElementById('month_select');
+
+    function toggleMonth() {
+      if (!recSel) return;
+      const isMonthly = recSel.value === 'monthly';
+      monthSel.disabled = isMonthly;
+      if (isMonthly) {
+        // keep UI clean: show “(none)” when monthly is selected
+        monthSel.value = "";
+      }
+    }
+
+    if (recSel && monthSel) {
+      recSel.addEventListener('change', toggleMonth);
+      // Run once on load to match existing value
+      toggleMonth();
+    }
+  })();
+</script>
+{% endblock %}
+
