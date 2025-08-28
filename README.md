@@ -20,7 +20,7 @@ Save the following as docker-compose.yml:
 ```yaml
 services:
   web:
-    image: tanner23456/intellidollar-web:latest
+    image: tanner23456/intellidollar:latest
     container_name: intellidollar_web
     ports:
       - "8000:8000"
