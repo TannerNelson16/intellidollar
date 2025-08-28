@@ -72,7 +72,23 @@ ports:
 ```
 
 ## 📸 Screenshots
-(Coming soon !)
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Budgets
+![Budgets](screenshots/budgets.png)
+
+### Transactions
+![Transactions](screenshots/transactions.png)
+
+### Categories
+![Categories](screenshots/categories.png)
+
+### Quick Add
+![Quick Add](screenshots/quickadd.png)
+
+### Analytics
+![Analytics](screenshots/analytics.png)
 
 ## Mobile
 Mobile app in the works!
