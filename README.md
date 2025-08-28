@@ -1,4 +1,4 @@
-# Intellidollar 💵
+# intellidollar 💵
 *A self-hosted budget tracking web app by Intellidwell*
 
 Intellidollar helps you take control of your finances with:
@@ -15,53 +15,68 @@ Intellidollar helps you take control of your finances with:
 1. Create a new folder for your Intellidollar instance:
    ```bash
    mkdir intellidollar && cd intellidollar
+   ```
 Save the following as docker-compose.yml:
-(Insert your Docker Compose script here)
+```yaml
+services:
+  web:
+    image: tanner23456/intellidollar-web:latest
+    container_name: intellidollar_web
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=changeme123          # 🔑 replace with your own secure key
+      - DATABASE_URL=mysql+pymysql://intelliuser:intellipass@db/budgetdb
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8
+    container_name: intellidollar_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=changemeRoot # 🔑 replace this
+      - MYSQL_DATABASE=budgetdb
+      - MYSQL_USER=intelliuser
+      - MYSQL_PASSWORD=intellipass
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+```
 
 Start the stack:
 
-bash
-Copy code
+```bash
 docker compose up -d
+```
 Open your browser at http://localhost:8000 🎉
 
-⚙️ Configuration
+## ⚙️ Configuration
 SECRET_KEY
 Set this to a long, random string to keep sessions secure.
 
-DATABASE_URL
+##DATABASE_URL
 Follows SQLAlchemy format. Example for MySQL:
 
-bash
-Copy code
+```bash
 mysql+pymysql://username:password@db/budgetdb
-Ports
+```
+## Ports
 The app listens on port 8000 internally. Change the left side of the ports mapping if you want a different external port. Example:
-
-makefile
-Copy code
+```yaml
 ports:
   - "5000:8000"
-🧪 Quick Test with SQLite (no MySQL)
-If you just want to try Intellidollar without MySQL, you can run:
+```
 
-bash
-Copy code
-docker run -it --rm -p 8000:8000 \
-  -e FLASK_ENV=production \
-  -e SECRET_KEY=changeme123 \
-  -e DATABASE_URL=sqlite:///budget.db \
-  --name intellidollar_web \
-  tanner23456/intellidollar-web:latest
-This will create a budget.db file inside the container. For persistence, you’d mount a volume.
+## 📸 Screenshots
+(Coming soon !)
 
-📸 Screenshots
-(Coming soon – show off your dashboard & analytics!)
+## Mobile
+Mobile app in the works!
 
-📝 License
+## 📝 License
 This project is licensed under the MIT License.
 
-yaml
-Copy code
-
----
