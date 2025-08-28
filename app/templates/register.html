@@ -1,4 +1,16 @@
 {% extends 'base.html' %}
+
+{% block precontent %}
+<div class="container my-4">
+  <div class="d-flex justify-content-center">
+    <img src="{{ url_for('static', filename='attachments/intellidollar_app_logo.png') }}"
+         alt="intellidollar logo" height="288">
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
 {% block content %}
 <div class="card shadow-sm">
   <div class="card-body">
