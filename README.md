@@ -58,7 +58,7 @@ Open your browser at http://localhost:8000 🎉
 SECRET_KEY
 Set this to a long, random string to keep sessions secure.
 
-##DATABASE_URL
+## DATABASE_URL
 Follows SQLAlchemy format. Example for MySQL:
 
 ```bash
